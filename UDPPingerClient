@@ -1,0 +1,48 @@
+# Winston Roe
+# UDP Pinger Client
+# 10/21/22
+import socket
+import time
+from statistics import mean
+IP = "127.0.0.1" # localhost IP
+PORT = 12000 # socket on server
+
+lost_packets = 0 # initialize number of lost packets
+response_times = [] # parallel arrays, 
+start_time  = []
+end_time = [] 
+rtt = [] # only stores the times for packets that made it round trip
+
+csocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+csocket.settimeout(1) # 1 second timeout
+
+#send a packet
+for i in range(10): # 10 packets sent 
+    sequence = i + 1
+    start_time.append(time.time())
+    message = "Ping " + str(sequence) + " " + str(time.time()) 
+    csocket.sendto(message.encode(),(IP, PORT)) #message needed to be encoded
+    
+    try: # try to find a packet
+        response, address = csocket.recvfrom(1024)
+        end_time.append(time.time())
+        rtt.append(end_time[-1] - start_time[-1])
+        print(response.decode() + " : time=" + str(rtt[-1]) + " ms") #decode message from bindary 
+        response_times.append(rtt[-1])
+        
+    except timeout: # no packet found in 1 sec
+        print ("Request timed out")
+        lost_packets = lost_packets + 1
+        response_times.append(1000)
+    time.sleep(0.5) # so my packets don't all have the same time sent.
+loss_percent = float(lost_packets) * 10
+min_rtt = min(response_times)
+max_rtt = max(response_times)
+avg_rtt = mean(response_times) # imported mean()
+received_packets = 10 - lost_packets
+print("\nPing statistics")
+print(str(received_packets) + " out of 10 packets received for " + str(loss_percent) + "% packet loss")
+print("Minimum RTT: " + str(min_rtt) + "ms")
+print("Maximum RTT: " + str(max_rtt) + "ms")
+print("Average RTT: " + str(avg_rtt) + "ms")
+csocket.close
