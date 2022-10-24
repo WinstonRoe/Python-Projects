@@ -1,0 +1,32 @@
+import praw
+import config
+import time
+def bot_login():
+    r = praw.Reddit(
+        client_id=config.client_id,
+        client_secret=config.client_secret,
+        user_agent=config.user_agent,
+        username=config.username,
+        password=config.password
+    )
+    return r
+
+def run_bot(r):
+    print("searching for comments where I am mentioned")
+    for comment in r.subreddit('test').comments(limit=100):
+        if "/u/WinstonPythonBot"  in comment.body and comment.id not in comments:
+            print("found a comment where i was mentioned")
+            comment.reply(body="Hi")
+            comments.append(comment.id)
+            print("replied to a comment where i was mentioned " + comment.id)
+    print("sleeping for a minute")            
+    time.sleep(60)       #1 min sleep
+
+#print(reddit.read_only)    
+comments = []
+r = bot_login()
+print("beginning bot")
+while True:
+    run_bot(r)
+    print(str(comments))
+print("never made it here")
