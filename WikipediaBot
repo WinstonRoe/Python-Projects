@@ -1,0 +1,7 @@
+import wikipedia
+
+val = input("Two sentence wikipedia summary of: ")
+
+search1 = wikipedia.search(val)
+topresult = search1[0]
+print(wikipedia.summary(topresult, sentences=2))
